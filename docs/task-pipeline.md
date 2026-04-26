@@ -47,16 +47,16 @@
 
 ---
 
-### ⬜ T03 为5个员工编写岗位说明书
+### ✅ T03 为5个员工编写岗位说明书
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T03-1 文案助理岗位说明书（人设+10个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/copywriter/role-card.md | ⬜ |
-| T03-2 新媒体运营岗位说明书（人设+14个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/social_media/role-card.md | ⬜ |
-| T03-3 数据分析师岗位说明书（人设+14个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/analyst/role-card.md | ⬜ |
-| T03-4 项目管家岗位说明书（人设+10个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/project_manager/role-card.md | ⬜ |
-| T03-5 商业顾问岗位说明书（人设+10个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/consultant/role-card.md | ⬜ |
-| T03-6 更新 agents/*.py 中的员工信息（引用岗位说明书） | agents/copywriter.py 等5个文件 | ⬜ |
+| T03-1 文案助理岗位说明书（人设+10个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/copywriter/role-card.md | ✅ |
+| T03-2 新媒体运营岗位说明书（人设+14个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/social_media/role-card.md | ✅ |
+| T03-3 数据分析师岗位说明书（人设+14个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/analyst/role-card.md | ✅ |
+| T03-4 项目管家岗位说明书（人设+10个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/project_manager/role-card.md | ✅ |
+| T03-5 商业顾问岗位说明书（人设+10个能力模块+使用场景+不擅长声明+示例输入输出） | prompts/consultant/role-card.md | ✅ |
+| T03-6 更新 agents/*.py 中的员工信息（引用岗位说明书） | agents/copywriter.py 等5个文件 | ✅ |
 
 ---
 
@@ -304,7 +304,8 @@
 
 - ✅ **T01** 搭建GitHub仓库骨架 — 13个子任务全部完成，已推送到GitHub，BUG已修复
 - ✅ **T02** 梳理50+模板分类 — 8个子任务全部完成，映射表在 docs/template-mapping.md
-- ⬜ **T03** 为5个员工编写岗位说明书 — **下一步（6个子任务）**
+- ✅ **T03** 为5个员工编写岗位说明书 — 6个子任务全部完成，commit 2cba6ed
+- ⬜ **T04** 每个员工做明星工作流演示 — **下一步（10个子任务）**
 
 ---
 
