@@ -1,0 +1,17 @@
+# 一人公司AI团队 - Python依赖
+
+# Web服务
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# HTTP请求
+requests>=2.31.0
+
+# YAML配置解析
+pyyaml>=6.0.1
+
+# LLM调用（可选，根据使用的模型按需安装）
+openai>=1.12.0
+
+# 文件处理
+python-dateutil>=2.8.2

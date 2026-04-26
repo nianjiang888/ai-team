@@ -1,0 +1,72 @@
+# ============================================
+# 一人公司AI团队 - 用户配置文件
+# ============================================
+# 首次使用请复制此文件为 config.local.yaml 并填入你的配置
+# config.local.yaml 不会被 git 追踪
+
+# ---- LLM API 配置 ----
+llm:
+  # 默认使用的模型提供商: openai / claude / deepseek / zhipu
+  provider: "openai"
+  # API Key（必填，去对应平台申请）
+  api_key: "your-api-key-here"
+  # 模型名称
+  model: "gpt-4o-mini"
+  # API 基础地址（可选，用于代理或私有部署）
+  base_url: ""
+  # 请求超时（秒）
+  timeout: 60
+
+# ---- AI 员工配置 ----
+agents:
+  # 文案助理：公文、周报、邮件、文案润色
+  copywriter:
+    enabled: true
+    # 写作风格：formal（正式）/ casual（口语）/ professional（商务）
+    style: "professional"
+    # 输出语言
+    language: "zh-CN"
+
+  # 新媒体运营：小红书、抖音、公众号、头条等平台内容
+  social_media:
+    enabled: true
+    # 默认平台：xiaohongshu / douyin / wechat / toutiao
+    default_platform: "xiaohongshu"
+    # 内容风格：informal（轻松）/ professional（专业）/ humorous（幽默）
+    tone: "informal"
+    language: "zh-CN"
+
+  # 数据分析师：数据整理、报表、趋势分析
+  analyst:
+    enabled: true
+    # 默认图表类型：bar（柱状图）/ line（折线图）/ pie（饼图）
+    default_chart: "bar"
+    language: "zh-CN"
+
+  # 项目管家：任务拆解、进度追踪、甘特图
+  project_manager:
+    enabled: true
+    language: "zh-CN"
+
+  # 商业顾问：创业规划、副业分析、商业计划书
+  consultant:
+    enabled: true
+    language: "zh-CN"
+
+# ---- 自动化配置 ----
+automation:
+  # 日报生成时间（24小时制，HH:MM）
+  daily_report_time: "08:00"
+  # 自动清理 outputs 目录中超过 N 天的文件（0 = 不清理）
+  output_retention_days: 30
+  # 任务超时时间（分钟）
+  task_timeout: 30
+
+# ---- 看板配置 ----
+dashboard:
+  # 服务端口
+  port: 5678
+  # 是否自动打开浏览器
+  auto_open_browser: true
+  # 主题：light / dark
+  theme: "light"

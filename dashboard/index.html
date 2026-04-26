@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一人公司AI团队</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* 顶栏 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .header .version { font-size: 12px; opacity: 0.8; }
+
+        /* 主体 */
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+        /* 员工卡片 */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .agent-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .agent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .agent-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .agent-card .name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .agent-card .role { font-size: 12px; color: #888; margin-bottom: 8px; }
+        .agent-card .status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .status-idle { background: #e8f5e9; color: #2e7d32; }
+        .status-working { background: #fff3e0; color: #e65100; }
+        .status-offline { background: #f5f5f5; color: #999; }
+
+        /* 内容区 */
+        .panels {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .panel-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 工作台 */
+        .workstation .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #aaa;
+        }
+        .workstation .empty-state .big-icon { font-size: 48px; margin-bottom: 12px; }
+
+        /* 任务输入 */
+        .task-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .task-input select, .task-input input {
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .task-input select:focus, .task-input input:focus {
+            border-color: #667eea;
+        }
+        .task-input select { width: 140px; }
+        .task-input input { flex: 1; }
+        .task-input button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .task-input button:hover { opacity: 0.9; }
+
+        /* 日报 */
+        .report-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .report-item:last-child { border-bottom: none; }
+        .report-item .date { font-size: 12px; color: #999; }
+        .report-item .summary { font-size: 14px; margin-top: 4px; }
+
+        /* 任务列表 */
+        .task-list { margin-top: 12px; }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .task-item .task-agent { color: #667eea; font-weight: 500; margin-right: 12px; min-width: 80px; }
+        .task-item .task-type { color: #666; margin-right: auto; }
+        .task-item .task-status { font-size: 11px; padding: 2px 8px; border-radius: 8px; }
+        .task-pending { background: #fff3e0; color: #e65100; }
+        .task-working { background: #e3f2fd; color: #1565c0; }
+        .task-done { background: #e8f5e9; color: #2e7d32; }
+        .task-review { background: #fce4ec; color: #c62828; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .panels { grid-template-columns: 1fr; }
+            .agents-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🏢 一人公司AI团队</h1>
+    <span class="version">v1.0.0</span>
+</div>
+
+<div class="container">
+
+    <!-- AI员工卡片 -->
+    <div class="agents-grid" id="agentsGrid">
+        <div class="agent-card" onclick="selectAgent('copywriter')">
+            <div class="icon">✍️</div>
+            <div class="name">文案助理</div>
+            <div class="role">公文 / 周报 / 邮件 / 润色</div>
+            <span class="status status-idle">待命中</span>
+        </div>
+        <div class="agent-card" onclick="selectAgent('social_media')">
+            <div class="icon">📱</div>
+            <div class="name">新媒体运营</div>
+            <div class="role">小红书 / 抖音 / 公众号</div>
+            <span class="status status-idle">待命中</span>
+        </div>
+        <div class="agent-card" onclick="selectAgent('analyst')">
+            <div class="icon">📊</div>
+            <div class="name">数据分析师</div>
+            <div class="role">报表 / 图表 / 趋势分析</div>
+            <span class="status status-idle">待命中</span>
+        </div>
+        <div class="agent-card" onclick="selectAgent('project_manager')">
+            <div class="icon">📋</div>
+            <div class="name">项目管家</div>
+            <div class="role">任务拆解 / 进度追踪</div>
+            <span class="status status-idle">待命中</span>
+        </div>
+        <div class="agent-card" onclick="selectAgent('consultant')">
+            <div class="icon">💡</div>
+            <div class="name">商业顾问</div>
+            <div class="role">创业规划 / 副业分析</div>
+            <span class="status status-idle">待命中</span>
+        </div>
+    </div>
+
+    <!-- 主体面板 -->
+    <div class="panels">
+        <!-- 工作台 -->
+        <div class="panel workstation">
+            <div class="panel-title">📋 工作台</div>
+            <div class="empty-state">
+                <div class="big-icon">🤖</div>
+                <p>你的AI团队已就绪，选择一个员工并派发任务</p>
+            </div>
+            <div class="task-input">
+                <select id="agentSelect">
+                    <option value="copywriter">✍️ 文案助理</option>
+                    <option value="social_media">📱 新媒体运营</option>
+                    <option value="analyst">📊 数据分析师</option>
+                    <option value="project_manager">📋 项目管家</option>
+                    <option value="consultant">💡 商业顾问</option>
+                </select>
+                <input type="text" id="taskInput" placeholder="输入任务内容，如：帮我写一篇AI工具推荐的小红书文案">
+                <button onclick="dispatchTask()">派发</button>
+            </div>
+            <div class="task-list" id="taskList"></div>
+        </div>
+
+        <!-- 右侧栏 -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- 日报 -->
+            <div class="panel">
+                <div class="panel-title">📅 工作日报</div>
+                <div id="reportsList">
+                    <div class="report-item">
+                        <div class="date">系统初始化</div>
+                        <div class="summary">AI团队已部署就绪，等待你的第一个任务。</div>
+                    </div>
+                </div>
+            </div>
+            <!-- 待审批 -->
+            <div class="panel">
+                <div class="panel-title">⚠️ 待审批</div>
+                <div id="reviewsList" style="color: #aaa; font-size: 13px; padding: 12px 0;">
+                    暂无待审批内容
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// 页面加载时获取数据
+document.addEventListener('DOMContentLoaded', () => {
+    loadTasks();
+    loadAgents();
+});
+
+function selectAgent(agent) {
+    document.getElementById('agentSelect').value = agent;
+    document.getElementById('taskInput').focus();
+}
+
+async function loadAgents() {
+    try {
+        const res = await fetch('/api/agents');
+        const agents = await res.json();
+        // 更新卡片状态
+    } catch (e) {
+        console.log('Agent数据加载中...');
+    }
+}
+
+async function loadTasks() {
+    try {
+        const res = await fetch('/api/tasks');
+        const tasks = await res.json();
+        renderTasks(tasks);
+    } catch (e) {
+        console.log('任务数据加载中...');
+    }
+}
+
+function renderTasks(tasks) {
+    const list = document.getElementById('taskList');
+    if (tasks.length === 0) return;
+    const agentNames = {
+        copywriter: '✍️ 文案助理',
+        social_media: '📱 新媒体运营',
+        analyst: '📊 数据分析师',
+        project_manager: '📋 项目管家',
+        consultant: '💡 商业顾问',
+    };
+    const statusLabels = {
+        pending: '待处理',
+        working: '执行中',
+        review: '待审批',
+        done: '已完成',
+    };
+    list.innerHTML = tasks.slice(-10).reverse().map(t => `
+        <div class="task-item">
+            <span class="task-agent">${agentNames[t.agent] || t.agent}</span>
+            <span class="task-type">${t.input}</span>
+            <span class="task-status task-${t.status}">${statusLabels[t.status] || t.status}</span>
+        </div>
+    `).join('');
+}
+
+async function dispatchTask() {
+    const agent = document.getElementById('agentSelect').value;
+    const input = document.getElementById('taskInput').value.trim();
+    if (!input) return;
+
+    try {
+        const res = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent, type: '文案撰写', input }),
+        });
+        const task = await res.json();
+        document.getElementById('taskInput').value = '';
+        loadTasks();
+    } catch (e) {
+        alert('任务派发失败，请检查服务是否正常运行');
+    }
+}
+</script>
+
+</body>
+</html>
