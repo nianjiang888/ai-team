@@ -60,20 +60,20 @@
 
 ---
 
-### ⬜ T04 每个员工选1-2个模板做明星工作流演示
+### ✅ T04 每个员工选1-2个模板做明星工作流演示
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T04-1 文案助理演示案例：周报自动生成（输入原始材料→输出排版好的周报） | docs/demos/copywriter-demo.md | ⬜ |
-| T04-2 文案助理演示案例：商务邮件生成（输入场景→输出正式邮件） | docs/demos/copywriter-demo.md | ⬜ |
-| T04-3 新媒体运营演示案例：小红书种草文案（输入产品→输出完整笔记） | docs/demos/social-media-demo.md | ⬜ |
-| T04-4 新媒体运营演示案例：爆款标题生成（输入主题→输出10个标题） | docs/demos/social-media-demo.md | ⬜ |
-| T04-5 数据分析师演示案例：Excel数据清洗（输入脏数据→输出清洗后数据） | docs/demos/analyst-demo.md | ⬜ |
-| T04-6 数据分析师演示案例：数据趋势分析（输入销售数据→输出趋势报告） | docs/demos/analyst-demo.md | ⬜ |
-| T04-7 项目管家演示案例：任务拆解WBS（输入项目目标→输出WBS表格） | docs/demos/pm-demo.md | ⬜ |
-| T04-8 项目管家演示案例：项目日报生成（输入今日工作→输出格式化日报） | docs/demos/pm-demo.md | ⬜ |
-| T04-9 商业顾问演示案例：商业计划书（输入创业想法→输出BP大纲） | docs/demos/consultant-demo.md | ⬜ |
-| T04-10 商业顾问演示案例：竞品分析报告（输入行业→输出竞品对比） | docs/demos/consultant-demo.md | ⬜ |
+| T04-1 文案助理演示案例：周报自动生成（输入原始材料→输出排版好的周报） | docs/demos/demo-01-copywriter-weekly-report.md | ✅ |
+| T04-2 文案助理演示案例：商务邮件生成（输入场景→输出正式邮件） | docs/demos/demo-02-copywriter-business-email.md | ✅ |
+| T04-3 新媒体运营演示案例：小红书种草文案（输入产品→输出完整笔记） | docs/demos/demo-03-social-media-xiaohongshu.md | ✅ |
+| T04-4 新媒体运营演示案例：爆款标题生成（输入主题→输出10个标题） | docs/demos/demo-04-social-media-viral-titles.md | ✅ |
+| T04-5 数据分析师演示案例：Excel数据清洗（输入脏数据→输出清洗后数据） | docs/demos/demo-05-analyst-data-cleaning.md | ✅ |
+| T04-6 数据分析师演示案例：数据趋势分析（输入销售数据→输出趋势报告） | docs/demos/demo-06-analyst-trend-analysis.md | ✅ |
+| T04-7 项目管家演示案例：任务拆解WBS（输入项目目标→输出WBS表格） | docs/demos/demo-07-pm-wbs.md | ✅ |
+| T04-8 项目管家演示案例：项目日报生成（输入今日工作→输出格式化日报） | docs/demos/demo-08-pm-daily-report.md | ✅ |
+| T04-9 商业顾问演示案例：商业计划书（输入创业想法→输出BP大纲） | docs/demos/demo-09-consultant-bp.md | ✅ |
+| T04-10 商业顾问演示案例：竞品分析报告（输入行业→输出竞品对比） | docs/demos/demo-10-consultant-competitor.md | ✅ |
 
 ---
 
@@ -305,7 +305,9 @@
 - ✅ **T01** 搭建GitHub仓库骨架 — 13个子任务全部完成，已推送到GitHub，BUG已修复
 - ✅ **T02** 梳理50+模板分类 — 8个子任务全部完成，映射表在 docs/template-mapping.md
 - ✅ **T03** 为5个员工编写岗位说明书 — 6个子任务全部完成，commit 2cba6ed
-- ⬜ **T04** 每个员工做明星工作流演示 — **下一步（10个子任务）**
+- ✅ **T03** 为5个员工编写岗位说明书 — 6个子任务全部完成
+- ✅ **T04** 每个员工做明星工作流演示 — 10个子任务全部完成，commit f493976
+- ⬜ **T05** 重新设计SkillHub上架文案 — **下一步（5个子任务）**
 
 ---
 
