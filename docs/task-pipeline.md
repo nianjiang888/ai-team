@@ -93,17 +93,17 @@
 
 **目标**：把独立模板串成5条自动化工作流。
 
-### ⬜ T06 新媒体运营工作流：选题→写稿→配图→排版
+### ✅ T06 新媒体运营工作流：选题→写稿→配图→排版
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T06-1 每日自动抓取热搜/榜单（web_search API） | 热搜数据抓取函数 | ⬜ |
-| T06-2 LLM分析热搜，生成5个选题建议（Prompt链） | 选题生成函数 | ⬜ |
-| T06-3 选题格式化输出到看板（写入outputs/topics.json） | 选题输出函数 | ⬜ |
-| T06-4 用户选择选题后调用对应平台文案模板 | 文案生成函数 | ⬜ |
-| T06-5 自动润色去AI腔 | 润色质检函数 | ⬜ |
-| T06-6 输出排版好的文件到outputs/，进入"待审批"状态 | 审批状态写入 | ⬜ |
-| T06-7 APScheduler定时任务（每天8:00触发） | 定时触发配置 | ⬜ |
+| T06-1 每日自动抓取热搜/榜单（web_search API） | workflows/social_media_workflow.py → fetch_trending() | ✅ |
+| T06-2 LLM分析热搜，生成5个选题建议（Prompt链） | workflows/social_media_workflow.py → generate_topics() | ✅ |
+| T06-3 选题格式化输出到看板（写入outputs/topics.json） | workflows/social_media_workflow.py → save_topics() | ✅ |
+| T06-4 用户选择选题后调用对应平台文案模板 | workflows/social_media_workflow.py → generate_content() | ✅ |
+| T06-5 自动润色去AI腔 | workflows/social_media_workflow.py → refine_content() + quality_check() | ✅ |
+| T06-6 输出排版好的文件到outputs/，进入"待审批"状态 | workflows/social_media_workflow.py → save_content() | ✅ |
+| T06-7 APScheduler定时任务（每天8:00触发） | workflows/social_media_workflow.py → setup_scheduler() | ✅ |
 
 ---
 
@@ -308,7 +308,8 @@
 - ✅ **T03** 为5个员工编写岗位说明书 — 6个子任务全部完成
 - ✅ **T04** 每个员工做明星工作流演示 — 10个子任务全部完成，commit f493976
 - ✅ **T05** SkillHub上架文案 — 5个子任务完成（宣传图待补），commit 3669e94
-- ⬜ **T06** 新媒体运营工作流：选题→写稿→配图→排版 — **下一步**
+- ✅ **T06** 新媒体运营工作流 — 7个子任务全部完成，commit c665068
+- ⬜ **T07** 文案助理工作流 — **下一步**
 
 ---
 
