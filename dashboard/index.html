@@ -4,321 +4,620 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一人公司AI团队</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#EEF2FF', 100: '#E0E7FF', 200: '#C7D2FE',
+                            300: '#A5B4FC', 400: '#818CF8', 500: '#6366F1',
+                            600: '#4F46E5', 700: '#4338CA', 800: '#3730A3', 900: '#312E81'
+                        },
+                        slate: {
+                            750: '#293548'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Microsoft YaHei', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, "Microsoft YaHei", sans-serif;
-            background: #f5f7fa;
-            color: #333;
-            min-height: 100vh;
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* 呼吸灯动画 */
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        .pulse-online { animation: pulse-dot 2s ease-in-out infinite; }
+        .pulse-working { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+        /* 进度条动画 */
+        @keyframes progress-flow {
+            0% { background-position: 0 0; }
+            100% { background-position: 30px 0; }
+        }
+        .progress-animated {
+            background-image: linear-gradient(
+                45deg,
+                rgba(255,255,255,0.15) 25%, transparent 25%,
+                transparent 50%, rgba(255,255,255,0.15) 50%,
+                rgba(255,255,255,0.15) 75%, transparent 75%, transparent
+            );
+            background-size: 30px 30px;
+            animation: progress-flow 1.5s linear infinite;
         }
 
-        /* 顶栏 */
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* 卡片悬停效果 */
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .header h1 { font-size: 20px; font-weight: 600; }
-        .header .version { font-size: 12px; opacity: 0.8; }
-
-        /* 主体 */
-        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-
-        /* 员工卡片 */
-        .agents-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .agent-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .agent-card:hover {
+        .card-hover:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-        .agent-card .icon { font-size: 32px; margin-bottom: 8px; }
-        .agent-card .name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .agent-card .role { font-size: 12px; color: #888; margin-bottom: 8px; }
-        .agent-card .status {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-        }
-        .status-idle { background: #e8f5e9; color: #2e7d32; }
-        .status-working { background: #fff3e0; color: #e65100; }
-        .status-offline { background: #f5f5f5; color: #999; }
-
-        /* 内容区 */
-        .panels {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 16px;
-        }
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .panel-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #eee;
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        /* 工作台 */
-        .workstation .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #aaa;
+        /* 导航激活状态 */
+        .nav-item {
+            position: relative;
+            transition: all 0.2s;
         }
-        .workstation .empty-state .big-icon { font-size: 48px; margin-bottom: 12px; }
+        .nav-item.active {
+            color: #4F46E5;
+            background: #EEF2FF;
+        }
+        .nav-item:hover:not(.active) {
+            background: #F1F5F9;
+        }
 
-        /* 任务输入 */
-        .task-input {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
+        /* 员工行悬停 */
+        .agent-row {
+            transition: all 0.2s;
         }
-        .task-input select, .task-input input {
-            padding: 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
+        .agent-row:hover {
+            background: #F8FAFC;
         }
-        .task-input select:focus, .task-input input:focus {
-            border-color: #667eea;
+
+        /* 任务行动画 */
+        .task-row {
+            transition: all 0.15s;
         }
-        .task-input select { width: 140px; }
-        .task-input input { flex: 1; }
-        .task-input button {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
+        .task-row:hover {
+            background: #FAFBFE;
+        }
+
+        /* 选题卡片 */
+        .topic-card {
+            transition: all 0.2s;
             cursor: pointer;
         }
-        .task-input button:hover { opacity: 0.9; }
-
-        /* 日报 */
-        .report-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #f5f5f5;
+        .topic-card:hover {
+            border-color: #818CF8;
+            background: #FAFAFF;
         }
-        .report-item:last-child { border-bottom: none; }
-        .report-item .date { font-size: 12px; color: #999; }
-        .report-item .summary { font-size: 14px; margin-top: 4px; }
-
-        /* 任务列表 */
-        .task-list { margin-top: 12px; }
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            background: #fafafa;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 13px;
+        .topic-card.selected {
+            border-color: #6366F1;
+            background: #EEF2FF;
         }
-        .task-item .task-agent { color: #667eea; font-weight: 500; margin-right: 12px; min-width: 80px; }
-        .task-item .task-type { color: #666; margin-right: auto; }
-        .task-item .task-status { font-size: 11px; padding: 2px 8px; border-radius: 8px; }
-        .task-pending { background: #fff3e0; color: #e65100; }
-        .task-working { background: #e3f2fd; color: #1565c0; }
-        .task-done { background: #e8f5e9; color: #2e7d32; }
-        .task-review { background: #fce4ec; color: #c62828; }
 
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .panels { grid-template-columns: 1fr; }
-            .agents-grid { grid-template-columns: repeat(2, 1fr); }
+        /* Toast通知 */
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter { animation: slide-in 0.3s ease-out; }
+
+        /* 侧边栏面板滚动 */
+        .sidebar-panel {
+            max-height: 280px;
+            overflow-y: auto;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 font-sans text-slate-800 min-h-screen">
 
-<div class="header">
-    <h1>🏢 一人公司AI团队</h1>
-    <span class="version">v1.0.0</span>
-</div>
-
-<div class="container">
-
-    <!-- AI员工卡片 -->
-    <div class="agents-grid" id="agentsGrid">
-        <div class="agent-card" onclick="selectAgent('copywriter')">
-            <div class="icon">✍️</div>
-            <div class="name">文案助理</div>
-            <div class="role">公文 / 周报 / 邮件 / 润色</div>
-            <span class="status status-idle">待命中</span>
-        </div>
-        <div class="agent-card" onclick="selectAgent('social_media')">
-            <div class="icon">📱</div>
-            <div class="name">新媒体运营</div>
-            <div class="role">小红书 / 抖音 / 公众号</div>
-            <span class="status status-idle">待命中</span>
-        </div>
-        <div class="agent-card" onclick="selectAgent('analyst')">
-            <div class="icon">📊</div>
-            <div class="name">数据分析师</div>
-            <div class="role">报表 / 图表 / 趋势分析</div>
-            <span class="status status-idle">待命中</span>
-        </div>
-        <div class="agent-card" onclick="selectAgent('project_manager')">
-            <div class="icon">📋</div>
-            <div class="name">项目管家</div>
-            <div class="role">任务拆解 / 进度追踪</div>
-            <span class="status status-idle">待命中</span>
-        </div>
-        <div class="agent-card" onclick="selectAgent('consultant')">
-            <div class="icon">💡</div>
-            <div class="name">商业顾问</div>
-            <div class="role">创业规划 / 副业分析</div>
-            <span class="status status-idle">待命中</span>
-        </div>
-    </div>
-
-    <!-- 主体面板 -->
-    <div class="panels">
-        <!-- 工作台 -->
-        <div class="panel workstation">
-            <div class="panel-title">📋 工作台</div>
-            <div class="empty-state">
-                <div class="big-icon">🤖</div>
-                <p>你的AI团队已就绪，选择一个员工并派发任务</p>
+    <!-- ===== 顶部导航栏 ===== -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="flex items-center justify-between px-6 h-16">
+            <!-- 左侧：Logo + 员工快捷入口 -->
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">AI</span>
+                    </div>
+                    <span class="text-lg font-bold text-slate-800">一人公司AI团队</span>
+                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">v1.0</span>
+                </div>
+                <!-- 员工快捷入口 -->
+                <div class="hidden lg:flex items-center gap-1 ml-4">
+                    <button onclick="filterByAgent('all')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition" title="全部员工">
+                        <span class="text-base">ALL</span><span>全部</span>
+                    </button>
+                    <button onclick="filterByAgent('copywriter')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition" title="文案助理">
+                        <span class="w-5 h-5 rounded bg-blue-50 flex items-center justify-center text-[9px] font-bold text-blue-600">CW</span><span class="hidden xl:inline">文案</span>
+                    </button>
+                    <button onclick="filterByAgent('social_media')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition" title="新媒体运营">
+                        <span class="w-5 h-5 rounded bg-pink-50 flex items-center justify-center text-[9px] font-bold text-pink-600">SM</span><span class="hidden xl:inline">运营</span>
+                    </button>
+                    <button onclick="filterByAgent('analyst')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition" title="数据分析师">
+                        <span class="w-5 h-5 rounded bg-cyan-50 flex items-center justify-center text-[9px] font-bold text-cyan-600">DA</span><span class="hidden xl:inline">数据</span>
+                    </button>
+                    <button onclick="filterByAgent('project_manager')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition" title="项目管家">
+                        <span class="w-5 h-5 rounded bg-indigo-50 flex items-center justify-center text-[9px] font-bold text-indigo-600">PM</span><span class="hidden xl:inline">项目</span>
+                    </button>
+                    <button onclick="filterByAgent('consultant')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition" title="商业顾问">
+                        <span class="w-5 h-5 rounded bg-amber-50 flex items-center justify-center text-[9px] font-bold text-amber-600">BC</span><span class="hidden xl:inline">顾问</span>
+                    </button>
+                </div>
             </div>
-            <div class="task-input">
-                <select id="agentSelect">
-                    <option value="copywriter">✍️ 文案助理</option>
-                    <option value="social_media">📱 新媒体运营</option>
-                    <option value="analyst">📊 数据分析师</option>
-                    <option value="project_manager">📋 项目管家</option>
-                    <option value="consultant">💡 商业顾问</option>
-                </select>
-                <input type="text" id="taskInput" placeholder="输入任务内容，如：帮我写一篇AI工具推荐的小红书文案">
-                <button onclick="dispatchTask()">派发</button>
-            </div>
-            <div class="task-list" id="taskList"></div>
-        </div>
 
-        <!-- 右侧栏 -->
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-            <!-- 日报 -->
-            <div class="panel">
-                <div class="panel-title">📅 工作日报</div>
-                <div id="reportsList">
-                    <div class="report-item">
-                        <div class="date">系统初始化</div>
-                        <div class="summary">AI团队已部署就绪，等待你的第一个任务。</div>
+            <!-- 右侧：导航标签 + 用户 -->
+            <div class="flex items-center gap-3">
+                <nav class="hidden md:flex items-center bg-gray-100 rounded-lg p-1">
+                    <button class="nav-item active px-4 py-1.5 rounded-md text-sm font-medium" onclick="switchTab(this, 'overview')">
+                        <span class="flex items-center gap-1.5">概览</span>
+                    </button>
+                    <button class="nav-item px-4 py-1.5 rounded-md text-sm font-medium text-gray-500" onclick="switchTab(this, 'tasks')">
+                        <span class="flex items-center gap-1.5">任务</span>
+                    </button>
+                    <button class="nav-item px-4 py-1.5 rounded-md text-sm font-medium text-gray-500" onclick="switchTab(this, 'reviews')">
+                        <span class="flex items-center gap-1.5">审批</span>
+                    </button>
+                    <button class="nav-item px-4 py-1.5 rounded-md text-sm font-medium text-gray-500" onclick="switchTab(this, 'settings')">
+                        <span class="flex items-center gap-1.5">设置</span>
+                    </button>
+                </nav>
+                <!-- 通知铃铛 -->
+                <button class="relative p-2 rounded-lg hover:bg-gray-100 transition" title="通知">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+                </button>
+                <!-- 用户头像 -->
+                <div class="flex items-center gap-2 pl-3 border-l border-gray-200">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">BOSS</div>
+                    <span class="hidden lg:block text-sm font-medium text-gray-700">老板</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== 主内容区 ===== -->
+    <main class="p-6">
+        <div class="max-w-[1400px] mx-auto">
+
+            <!-- 统计卡片区 -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="statsCards">
+                <!-- 总任务 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-500">总任务</span>
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-slate-800" id="statTotal">28</div>
+                    <div class="text-xs text-gray-400 mt-1">本周累计</div>
+                </div>
+                <!-- 已完成 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-500">已完成</span>
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-emerald-600" id="statDone">19</div>
+                    <div class="text-xs text-emerald-500 mt-1 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        今日 +5
+                    </div>
+                </div>
+                <!-- 进行中 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-500">进行中</span>
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-amber-600" id="statWorking">6</div>
+                    <div class="text-xs text-gray-400 mt-1">文案 x2 · 运营 x4</div>
+                </div>
+                <!-- 待审批 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-500">待审批</span>
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-purple-600" id="statReview">3</div>
+                    <div class="text-xs text-purple-400 mt-1">运营 x2 · 顾问 x1</div>
+                </div>
+            </div>
+
+            <!-- 数据可视化图表区 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                <!-- 任务分布饼图 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-slate-800">任务状态分布</h3>
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 font-medium">实时</span>
+                    </div>
+                    <div class="relative h-48 flex items-center justify-center">
+                        <canvas id="statusPieChart"></canvas>
+                    </div>
+                </div>
+                <!-- 各员工产出柱状图 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-slate-800">员工产出统计</h3>
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 font-medium">累计</span>
+                    </div>
+                    <div class="relative h-48">
+                        <canvas id="agentBarChart"></canvas>
+                    </div>
+                </div>
+                <!-- 完成率雷达/趋势图 -->
+                <div class="card-hover bg-white rounded-xl p-5 border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-slate-800">各员工完成率</h3>
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 font-medium">实时</span>
+                    </div>
+                    <div class="relative h-48">
+                        <canvas id="completionChart"></canvas>
                     </div>
                 </div>
             </div>
-            <!-- 待审批 -->
-            <div class="panel">
-                <div class="panel-title">⚠️ 待审批</div>
-                <div id="reviewsList" style="color: #aaa; font-size: 13px; padding: 12px 0;">
-                    暂无待审批内容
+
+            <!-- 主体：左侧内容 + 右侧边栏 -->
+            <div class="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
+
+                <!-- ===== 左侧内容区 ===== -->
+                <div class="space-y-6">
+
+                    <!-- 工作台 -->
+                    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <h2 class="text-base font-semibold text-slate-800">今日工作台</h2>
+                            <span class="text-xs text-gray-400" id="workstationTime">2026-04-27 周一</span>
+                        </div>
+                        <div class="p-5" id="workstationContent">
+                            <!-- 运营推荐选题 -->
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-xs font-bold text-pink-600">SM</span>
+                                <span class="text-sm font-semibold text-slate-800">新媒体运营说：</span>
+                                <span class="text-sm text-gray-500">"今天为你准备了3个热门选题"</span>
+                            </div>
+                            <div class="space-y-3" id="topicsList">
+                                <div class="topic-card border border-gray-200 rounded-lg p-4 flex items-start gap-3" onclick="selectTopic(this, 0)">
+                                    <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
+                                        <span class="text-xs font-bold text-red-500">TOP</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-semibold text-slate-800">AI工具测评 - 2026最值得用的10个AI工具</span>
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-500 font-medium">高热度</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 mt-1">平台：小红书 · 预估阅读量 5000+ · 竞品内容少</p>
+                                    </div>
+                                    <button class="shrink-0 px-3 py-1.5 rounded-lg border border-brand-200 text-brand-600 text-xs font-medium hover:bg-brand-50 transition">选用</button>
+                                </div>
+                                <div class="topic-card border border-gray-200 rounded-lg p-4 flex items-start gap-3" onclick="selectTopic(this, 1)">
+                                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0 mt-0.5">
+                                        <span class="text-xs font-bold text-orange-500">HOT</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-semibold text-slate-800">普通人如何用AI月入5000</span>
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-orange-50 text-orange-500 font-medium">中高</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 mt-1">平台：公众号 · 预估阅读量 3000+ · 长尾流量好</p>
+                                    </div>
+                                    <button class="shrink-0 px-3 py-1.5 rounded-lg border border-brand-200 text-brand-600 text-xs font-medium hover:bg-brand-50 transition">选用</button>
+                                </div>
+                                <div class="topic-card border border-gray-200 rounded-lg p-4 flex items-start gap-3" onclick="selectTopic(this, 2)">
+                                    <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center shrink-0 mt-0.5">
+                                        <span class="text-xs font-bold text-yellow-500">NEW</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-semibold text-slate-800">效率提升技巧 - 早八人的AI自动化办公指南</span>
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-yellow-50 text-yellow-600 font-medium">中等</span>
+                                        </div>
+                                        <p class="text-xs text-gray-400 mt-1">平台：小红书 · 预估阅读量 2000+ · 蓝海选题</p>
+                                    </div>
+                                    <button class="shrink-0 px-3 py-1.5 rounded-lg border border-brand-200 text-brand-600 text-xs font-medium hover:bg-brand-50 transition">选用</button>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center gap-3">
+                                <button onclick="confirmTopicSelection()" class="px-4 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition">
+                                    确认选用并生成
+                                </button>
+                                <button class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition">
+                                    自定义任务
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 任务列表 -->
+                    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <h2 class="text-base font-semibold text-slate-800">任务列表</h2>
+                            <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                                <button onclick="filterTasks(this, 'all')" class="task-filter active px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-700 shadow-sm">全部</button>
+                                <button onclick="filterTasks(this, 'pending')" class="task-filter px-3 py-1 rounded-md text-xs font-medium text-gray-500">待处理</button>
+                                <button onclick="filterTasks(this, 'working')" class="task-filter px-3 py-1 rounded-md text-xs font-medium text-gray-500">进行中</button>
+                                <button onclick="filterTasks(this, 'done')" class="task-filter px-3 py-1 rounded-md text-xs font-medium text-gray-500">已完成</button>
+                                <button onclick="filterTasks(this, 'review')" class="task-filter px-3 py-1 rounded-md text-xs font-medium text-gray-500">待审批</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-xs font-medium text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                                        <th class="px-5 py-3">任务</th>
+                                        <th class="px-4 py-3 hidden md:table-cell">员工</th>
+                                        <th class="px-4 py-3 hidden lg:table-cell">类型</th>
+                                        <th class="px-4 py-3">状态</th>
+                                        <th class="px-4 py-3 hidden sm:table-cell">时间</th>
+                                        <th class="px-5 py-3 text-right">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50" id="taskTableBody">
+                                    <!-- 动态渲染 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
+                            <span class="text-xs text-gray-400" id="taskCount">共 8 条记录</span>
+                            <div class="flex items-center gap-1">
+                                <button class="px-3 py-1 rounded-md text-xs text-gray-500 hover:bg-gray-100">上一页</button>
+                                <button class="px-3 py-1 rounded-md text-xs bg-brand-500 text-white">1</button>
+                                <button class="px-3 py-1 rounded-md text-xs text-gray-500 hover:bg-gray-100">2</button>
+                                <button class="px-3 py-1 rounded-md text-xs text-gray-500 hover:bg-gray-100">下一页</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- AI员工状态面板 -->
+                    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <h2 class="text-base font-semibold text-slate-800">AI员工工作状态</h2>
+                            <button class="text-sm text-brand-500 hover:text-brand-700 font-medium transition">查看全部</button>
+                        </div>
+                        <div class="divide-y divide-gray-50" id="agentsPanel">
+                            <!-- 动态渲染：由app.js loadAgentStatus() 填充 -->
+                        </div>
+                        <!-- 快捷派单按钮 -->
+                        <div class="px-5 py-3 bg-gray-50/50 border-t border-gray-100">
+                            <button onclick="showQuickDispatch()" class="w-full py-2.5 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                快速派单
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- ===== 右侧边栏 ===== -->
+                <div class="space-y-6">
+
+                    <!-- AI助手面板 -->
+                    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-100">
+                            <h2 class="text-base font-semibold text-slate-800">AI 助手</h2>
+                        </div>
+                        <div class="p-5">
+                            <div class="text-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center mx-auto mb-2">
+                                    <span class="text-white text-xs font-bold tracking-wider">AI</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Hi, 老板</p>
+                                <p class="text-xs text-gray-400 mt-0.5">有什么可以帮你的？</p>
+                            </div>
+                            <!-- 快捷功能 -->
+                            <div class="grid grid-cols-3 gap-2 mb-4">
+                                <button onclick="quickAction('copywriter')" class="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition">
+                                    <span class="w-6 h-6 rounded bg-blue-50 flex items-center justify-center text-[8px] font-bold text-blue-600">CW</span>
+                                    <span class="text-[10px] text-gray-500">文案</span>
+                                </button>
+                                <button onclick="quickAction('social_media')" class="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition">
+                                    <span class="w-6 h-6 rounded bg-pink-50 flex items-center justify-center text-[8px] font-bold text-pink-600">SM</span>
+                                    <span class="text-[10px] text-gray-500">运营</span>
+                                </button>
+                                <button onclick="quickAction('analyst')" class="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition">
+                                    <span class="w-6 h-6 rounded bg-cyan-50 flex items-center justify-center text-[8px] font-bold text-cyan-600">DA</span>
+                                    <span class="text-[10px] text-gray-500">数据</span>
+                                </button>
+                                <button onclick="quickAction('project_manager')" class="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition">
+                                    <span class="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center text-[8px] font-bold text-indigo-600">PM</span>
+                                    <span class="text-[10px] text-gray-500">项目</span>
+                                </button>
+                                <button onclick="quickAction('consultant')" class="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition">
+                                    <span class="w-6 h-6 rounded bg-amber-50 flex items-center justify-center text-[8px] font-bold text-amber-600">BC</span>
+                                    <span class="text-[10px] text-gray-500">顾问</span>
+                                </button>
+                                <button onclick="quickAction('all')" class="flex flex-col items-center gap-1 p-2.5 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50 transition">
+                                    <span class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-[8px] font-bold text-slate-600">ALL</span>
+                                    <span class="text-[10px] text-gray-500">全能</span>
+                                </button>
+                            </div>
+                            <!-- 输入框 -->
+                            <div class="flex items-center gap-2 p-2 rounded-xl border border-gray-200 focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition">
+                                <input type="text" id="quickTaskInput" placeholder="输入任务..." class="flex-1 text-sm outline-none bg-transparent placeholder:text-gray-300 px-2" onkeydown="if(event.key==='Enter')quickDispatch()">
+                                <button onclick="quickDispatch()" class="w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center hover:bg-brand-600 transition shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 待处理任务 -->
+                    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <h2 class="text-base font-semibold text-slate-800">待处理任务</h2>
+                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-500 font-medium" id="pendingCount">3 项待办</span>
+                        </div>
+                        <div class="sidebar-panel divide-y divide-gray-50" id="pendingTasksPanel">
+                            <div class="p-4 flex items-start gap-3 hover:bg-gray-50 transition cursor-pointer">
+                                <div class="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0"></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium text-slate-700 truncate">小红书文案审批</div>
+                                    <div class="text-xs text-gray-400 mt-0.5">SM运营 → CW文案 · 3分钟前</div>
+                                </div>
+                            </div>
+                            <div class="p-4 flex items-start gap-3 hover:bg-gray-50 transition cursor-pointer">
+                                <div class="w-2 h-2 rounded-full bg-blue-400 mt-1.5 shrink-0"></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium text-slate-700 truncate">周报数据需求</div>
+                                    <div class="text-xs text-gray-400 mt-0.5">PM项目 → DA分析 · 15分钟前</div>
+                                </div>
+                            </div>
+                            <div class="p-4 flex items-start gap-3 hover:bg-gray-50 transition cursor-pointer">
+                                <div class="w-2 h-2 rounded-full bg-purple-400 mt-1.5 shrink-0"></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium text-slate-700 truncate">副业选题建议推送</div>
+                                    <div class="text-xs text-gray-400 mt-0.5">BC顾问 → SM运营 · 1小时前</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 py-3 border-t border-gray-100 text-center">
+                            <button class="text-xs text-brand-500 hover:text-brand-700 font-medium transition">查看全部 →</button>
+                        </div>
+                    </div>
+
+                    <!-- 协作动态 -->
+                    <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <h2 class="text-base font-semibold text-slate-800">协作动态</h2>
+                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-500 font-medium">实时</span>
+                        </div>
+                        <div class="sidebar-panel divide-y divide-gray-50" id="collabTimeline">
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    <span class="font-medium text-gray-700">文案助理</span>
+                                    <span>完成了任务</span>
+                                </div>
+                                <div class="text-sm text-slate-700 pl-3.5 border-l-2 border-gray-100 ml-[3px]">小红书文案《AI工具测评》已生成，等待审批</div>
+                                <div class="text-[11px] text-gray-400 mt-1 pl-3.5 ml-[3px]">2分钟前</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                    <span class="font-medium text-gray-700">项目管家</span>
+                                    <span>派发了任务给</span>
+                                    <span class="font-medium text-gray-700">数据分析师</span>
+                                </div>
+                                <div class="text-sm text-slate-700 pl-3.5 border-l-2 border-gray-100 ml-[3px]">需要分析本周项目进度数据，生成周报</div>
+                                <div class="text-[11px] text-gray-400 mt-1 pl-3.5 ml-[3px]">15分钟前</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                    <span class="font-medium text-gray-700">商业顾问</span>
+                                    <span>推送建议给</span>
+                                    <span class="font-medium text-gray-700">新媒体运营</span>
+                                </div>
+                                <div class="text-sm text-slate-700 pl-3.5 border-l-2 border-gray-100 ml-[3px]">副业变现方向选题建议已推送</div>
+                                <div class="text-[11px] text-gray-400 mt-1 pl-3.5 ml-[3px]">1小时前</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
+                                    <span class="font-medium text-gray-700">新媒体运营</span>
+                                    <span>抓取了今日热点</span>
+                                </div>
+                                <div class="text-sm text-slate-700 pl-3.5 border-l-2 border-gray-100 ml-[3px]">从微博/B站/知乎抓取了23条热点，筛选出3个选题</div>
+                                <div class="text-[11px] text-gray-400 mt-1 pl-3.5 ml-[3px]">2小时前</div>
+                            </div>
+                        </div>
+                        <div class="px-5 py-3 border-t border-gray-100 text-center">
+                            <button class="text-xs text-brand-500 hover:text-brand-700 font-medium transition">查看全部动态 →</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== 底部状态栏 ===== -->
+    <footer class="mt-8 py-4 border-t border-gray-200 bg-white">
+        <div class="max-w-[1400px] mx-auto px-6 flex items-center justify-between text-xs text-gray-400">
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-online"></span>
+                    系统运行中
+                </span>
+                <span>运行时长：<span id="uptime">0h 0m</span></span>
+                <span>版本 v1.0.0</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span>5 个AI员工在线</span>
+                <span>最近刷新：<span id="lastRefresh">--</span></span>
+                <button onclick="refreshAll()" class="text-brand-500 hover:text-brand-700 transition font-medium">手动刷新</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== 快速派单弹窗 ===== -->
+    <div id="dispatchModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h3 class="text-base font-semibold text-slate-800">快速派单</h3>
+                <button onclick="closeDispatchModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">选择员工</label>
+                    <div class="grid grid-cols-5 gap-2">
+                        <button onclick="selectModalAgent(this,'copywriter')" class="modal-agent-btn flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition">
+                            <span class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-xs font-bold text-blue-600">CW</span><span class="text-[11px] text-gray-600">文案</span>
+                        </button>
+                        <button onclick="selectModalAgent(this,'social_media')" class="modal-agent-btn flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition">
+                            <span class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-xs font-bold text-pink-600">SM</span><span class="text-[11px] text-gray-600">运营</span>
+                        </button>
+                        <button onclick="selectModalAgent(this,'analyst')" class="modal-agent-btn flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition">
+                            <span class="w-8 h-8 rounded-lg bg-cyan-50 flex items-center justify-center text-xs font-bold text-cyan-600">DA</span><span class="text-[11px] text-gray-600">数据</span>
+                        </button>
+                        <button onclick="selectModalAgent(this,'project_manager')" class="modal-agent-btn flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition">
+                            <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-xs font-bold text-indigo-600">PM</span><span class="text-[11px] text-gray-600">项目</span>
+                        </button>
+                        <button onclick="selectModalAgent(this,'consultant')" class="modal-agent-btn flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-gray-200 hover:border-brand-300 transition">
+                            <span class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-xs font-bold text-amber-600">BC</span><span class="text-[11px] text-gray-600">顾问</span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">任务描述</label>
+                    <textarea id="dispatchInput" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition resize-none" placeholder="描述你要派发的任务，如：帮我写一篇关于AI工具推荐的小红书文案..."></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+                <button onclick="closeDispatchModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">取消</button>
+                <button onclick="submitDispatch()" class="px-6 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition">立即派发</button>
             </div>
         </div>
     </div>
 
-</div>
+    <!-- ===== Toast通知容器 ===== -->
+    <div id="toastContainer" class="fixed top-20 right-6 z-[60] space-y-2"></div>
 
-<script>
-// 页面加载时获取数据
-document.addEventListener('DOMContentLoaded', () => {
-    loadTasks();
-    loadAgents();
-});
-
-function selectAgent(agent) {
-    document.getElementById('agentSelect').value = agent;
-    document.getElementById('taskInput').focus();
-}
-
-async function loadAgents() {
-    try {
-        const res = await fetch('/api/agents');
-        const agents = await res.json();
-        // 更新卡片状态
-    } catch (e) {
-        console.log('Agent数据加载中...');
-    }
-}
-
-async function loadTasks() {
-    try {
-        const res = await fetch('/api/tasks');
-        const tasks = await res.json();
-        renderTasks(tasks);
-    } catch (e) {
-        console.log('任务数据加载中...');
-    }
-}
-
-function renderTasks(tasks) {
-    const list = document.getElementById('taskList');
-    if (tasks.length === 0) return;
-    const agentNames = {
-        copywriter: '✍️ 文案助理',
-        social_media: '📱 新媒体运营',
-        analyst: '📊 数据分析师',
-        project_manager: '📋 项目管家',
-        consultant: '💡 商业顾问',
-    };
-    const statusLabels = {
-        pending: '待处理',
-        working: '执行中',
-        review: '待审批',
-        done: '已完成',
-    };
-    list.innerHTML = tasks.slice(-10).reverse().map(t => `
-        <div class="task-item">
-            <span class="task-agent">${agentNames[t.agent] || t.agent}</span>
-            <span class="task-type">${t.input}</span>
-            <span class="task-status task-${t.status}">${statusLabels[t.status] || t.status}</span>
-        </div>
-    `).join('');
-}
-
-async function dispatchTask() {
-    const agent = document.getElementById('agentSelect').value;
-    const input = document.getElementById('taskInput').value.trim();
-    if (!input) return;
-
-    try {
-        const res = await fetch('/api/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agent, type: '文案撰写', input }),
-        });
-        const task = await res.json();
-        document.getElementById('taskInput').value = '';
-        loadTasks();
-    } catch (e) {
-        alert('任务派发失败，请检查服务是否正常运行');
-    }
-}
-</script>
-
+    <script src="/static/app.js"></script>
 </body>
 </html>

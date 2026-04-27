@@ -25,18 +25,22 @@ def check_python_version():
 
 
 def check_config():
-    """检查配置文件"""
+    """检查配置文件，优先级：config.local.yaml > config.yaml > config.free.yaml"""
     local_config = os.path.join(BASE_DIR, "config.local.yaml")
     default_config = os.path.join(BASE_DIR, "config.yaml")
+    free_config = os.path.join(BASE_DIR, "config.free.yaml")
 
     if os.path.exists(local_config):
         print("✅ 找到配置文件: config.local.yaml")
         return local_config
     elif os.path.exists(default_config):
-        print("⚠️  使用默认配置（请复制 config.yaml 为 config.local.yaml 并填入你的API Key）")
+        print("⚠️  使用默认配置（建议复制为 config.local.yaml 并填入你的API Key）")
         return default_config
+    elif os.path.exists(free_config):
+        print("⚠️  使用免费版默认配置（仅文案助理可用）")
+        return free_config
     else:
-        print("❌ 找不到配置文件 config.yaml")
+        print("❌ 找不到配置文件")
         sys.exit(1)
 
 

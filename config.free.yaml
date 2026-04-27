@@ -1,0 +1,48 @@
+# ============================================
+# 一人公司AI团队 - 免费版配置文件
+# ============================================
+# 免费版：仅包含文案助理（CW），可使用全部文案相关模板
+# 如需解锁全部5个AI员工，请访问知识星球/付费社群
+
+# ---- LLM API 配置 ----
+llm:
+  # 默认使用的模型提供商: openai / claude / deepseek / zhipu
+  provider: "openai"
+  # API Key（必填，去对应平台申请）
+  api_key: "your-api-key-here"
+  # 模型名称
+  model: "gpt-4o-mini"
+  # API 基础地址（可选，用于代理或私有部署）
+  base_url: ""
+  # 请求超时（秒）
+  timeout: 60
+
+# ---- AI 员工配置（免费版仅开放文案助理）----
+agents:
+  # 文案助理：公文、周报、邮件、文案润色
+  copywriter:
+    enabled: true
+    style: "professional"
+    language: "zh-CN"
+
+  # 以下员工需升级专业版后解锁
+  social_media:
+    enabled: false
+  analyst:
+    enabled: false
+  project_manager:
+    enabled: false
+  consultant:
+    enabled: false
+
+# ---- 自动化配置 ----
+automation:
+  daily_report_time: "08:00"
+  output_retention_days: 30
+  task_timeout: 30
+
+# ---- 看板配置 ----
+dashboard:
+  port: 5678
+  auto_open_browser: true
+  theme: "light"
