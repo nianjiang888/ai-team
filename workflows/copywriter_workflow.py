@@ -496,69 +496,67 @@ def save_draft(
 ) -> str:
     """
     输出Markdown文件到 outputs/content/，并创建审批记录。
-    
-    Args:
-        result: generate_draft() 的返回值
-        refined_result: refine_draft() 的返回值
-        auto_save: 是否自动保存
-        
-    Returns:
-        str: 文件路径
+    使用 output_utils 统一格式。
     """
+    from workflows.output_utils import (
+        build_filename, build_markdown_doc,
+        create_review, save_review,
+    )
+
     os.makedirs(CONTENT_DIR, exist_ok=True)
     os.makedirs(REVIEWS_DIR, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
     doc_type = result.get("doc_type", "general")
-    
+
     # 使用润色后的内容，或原始草稿
     content = refined_result["refined"] if refined_result else result["draft"]
     changes = refined_result.get("changes", []) if refined_result else []
-    
+
     # 专业度检查
     prof = professionalism_check(content, doc_type)
-    
-    # 文件名
-    filename = f"{timestamp}_{doc_type}.md"
-    filepath = os.path.join(CONTENT_DIR, filename)
-    
-    # 写文件
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(f"# {result.get('doc_name', '文档')}\n\n")
-        f.write(f"> 类型: {result.get('doc_name', '未知')}\n")
-        f.write(f"> 模板: {result.get('template_id', '通用')}\n")
-        f.write(f"> 类型识别置信度: {result.get('confidence', 0)}\n")
-        f.write(f"> 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-        f.write(f"> 专业度评分: {prof['score']}/100\n\n")
-        f.write("---\n\n")
-        f.write(content)
-        
-        if changes:
-            f.write("\n\n---\n\n## 修改说明\n\n")
-            for change in changes:
-                f.write(f"- {change}\n")
-    
-    # 审批记录
-    review_id = f"review_{timestamp}"
-    review_data = {
-        "id": review_id,
-        "type": "content_review",
-        "agent": "copywriter",
-        "doc_type": doc_type,
-        "doc_name": result.get("doc_name", ""),
-        "content_file": filename,
-        "quality_score": prof["score"],
-        "quality_issues": [c["item"] for c in prof["checks"] if not c["passed"]],
-        "refinement_changes": changes,
-        "status": "pending",
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "reviewed_at": None,
-        "review_note": "",
+    quality_info = {
+        "score": prof["score"],
+        "issues": [c["item"] for c in prof["checks"] if not c["passed"]],
+        "suggestions": [f"建议改进: {c['item']}" for c in prof["checks"] if not c["passed"]],
     }
-    
-    with open(os.path.join(REVIEWS_DIR, f"{review_id}.json"), "w", encoding="utf-8") as f:
-        json.dump(review_data, f, ensure_ascii=False, indent=2)
-    
+
+    # 如果有修改说明，追加到正文
+    body = content
+    if changes:
+        body += "\n\n---\n\n## 修改说明\n\n"
+        for change in changes:
+            body += f"- {change}\n"
+
+    # 使用统一命名和结构
+    filename = build_filename("copywriter", doc_type)
+    filepath = os.path.join(CONTENT_DIR, filename)
+
+    doc = build_markdown_doc(
+        employee="copywriter",
+        task_type=doc_type,
+        title=result.get("doc_name", "文档"),
+        body=body,
+        quality_info=quality_info,
+        extra_meta={
+            "template_id": result.get("template_id", "通用"),
+            "confidence": result.get("confidence", 0),
+        },
+    )
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(doc)
+
+    # 使用统一审批记录
+    review_data = create_review(
+        employee="copywriter",
+        task_type=doc_type,
+        title=result.get("doc_name", ""),
+        content=content,
+        filepath=filename,
+    )
+    review_data["refinement_changes"] = changes
+    save_review(review_data, REVIEWS_DIR)
+
     return filepath
 
 

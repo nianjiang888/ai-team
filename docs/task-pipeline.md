@@ -107,51 +107,51 @@
 
 ---
 
-### ⬜ T07 文案助理工作流：输入→生成→润色→质检
+### ✅ T07 文案助理工作流：输入→生成→润色→质检
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T07-1 接收用户输入（文字/文件），识别文档类型 | 输入解析函数 | ⬜ |
-| T07-2 匹配对应模板（周报/邮件/汇报/翻译等） | 模板匹配逻辑 | ⬜ |
-| T07-3 调用LLM生成初稿 | 初稿生成函数 | ⬜ |
-| T07-4 自动润色（去AI腔、口语化、专业度检查） | 润色质检函数 | ⬜ |
-| T07-5 输出Markdown文件，附带修改说明 | 文件输出函数 | ⬜ |
+| T07-1 接收用户输入（文字/文件），识别文档类型 | workflows/copywriter_workflow.py → identify_doc_type() | ✅ |
+| T07-2 匹配对应模板（周报/邮件/汇报/翻译等） | workflows/copywriter_workflow.py → get_template_prompt() | ✅ |
+| T07-3 调用LLM生成初稿 | workflows/copywriter_workflow.py → generate_draft() | ✅ |
+| T07-4 自动润色（去AI腔、口语化、专业度检查） | workflows/copywriter_workflow.py → refine_draft() + professionalism_check() | ✅ |
+| T07-5 输出Markdown文件，附带修改说明 | workflows/copywriter_workflow.py → save_draft() | ✅ |
 
 ---
 
-### ⬜ T08 数据分析师工作流：数据输入→清洗→分析→可视化
+### ✅ T08 数据分析师工作流：数据输入→清洗→分析→可视化
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T08-1 接收数据文件（CSV/Excel），自动检测格式和数据质量 | 数据解析函数 | ⬜ |
-| T08-2 数据清洗（去重、补缺、格式统一） | 清洗函数 | ⬜ |
-| T08-3 生成分析报告（趋势/对比/异常检测） | 分析函数 | ⬜ |
-| T08-4 推荐并生成可视化图表（matplotlib/echarts） | 图表生成函数 | ⬜ |
-| T08-5 输出分析报告（Markdown + 图表文件） | 报告输出函数 | ⬜ |
+| T08-1 接收数据文件（CSV/Excel），自动检测格式和数据质量 | workflows/analyst_workflow.py → detect_file_format() | ✅ |
+| T08-2 数据清洗（去重、补缺、格式统一） | workflows/analyst_workflow.py → clean_data_csv() | ✅ |
+| T08-3 生成分析报告（趋势/对比/异常检测） | workflows/analyst_workflow.py → generate_analysis_report() | ✅ |
+| T08-4 推荐并生成可视化图表 | workflows/analyst_workflow.py → recommend_charts() + generate_chart_code() | ✅ |
+| T08-5 输出分析报告（Markdown + 图表文件） | workflows/analyst_workflow.py → save_analysis_report() | ✅ |
 
 ---
 
-### ⬜ T09 项目管家工作流：目标→拆解→分配→追踪→汇报
+### ✅ T09 项目管家工作流：目标→拆解→分配→追踪→汇报
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T09-1 接收项目目标，AI自动拆解为WBS任务列表 | 任务拆解函数 | ⬜ |
-| T09-2 生成甘特图/里程碑时间表 | 时间表生成函数 | ⬜ |
-| T09-3 每日自动汇总进度（读取任务状态文件） | 进度汇总函数 | ⬜ |
-| T09-4 生成项目日报/周报（待办+完成+风险提示） | 日报生成函数 | ⬜ |
-| T09-5 逾期/风险自动告警 | 告警函数 | ⬜ |
+| T09-1 接收项目目标，AI自动拆解为WBS任务列表 | workflows/project_manager_workflow.py → create_wbs() | ✅ |
+| T09-2 生成甘特图/里程碑时间表 | workflows/project_manager_workflow.py → generate_milestones() | ✅ |
+| T09-3 每日自动汇总进度（读取任务状态文件） | workflows/project_manager_workflow.py → summarize_progress() | ✅ |
+| T09-4 生成项目日报/周报 | workflows/project_manager_workflow.py → generate_daily_report() | ✅ |
+| T09-5 逾期/风险自动告警 | workflows/project_manager_workflow.py → check_risks() | ✅ |
 
 ---
 
-### ⬜ T10 商业顾问工作流：需求诊断→方案生成→执行计划
+### ✅ T10 商业顾问工作流：需求诊断→方案生成→执行计划
 
 | 子任务 | 产出物 | 状态 |
 |--------|--------|------|
-| T10-1 问卷式引导用户描述需求（行业/预算/资源/目标） | 需求收集函数 | ⬜ |
-| T10-2 自动匹配分析维度（竞品/市场/财务/品牌） | 分析维度匹配 | ⬜ |
-| T10-3 生成结构化方案文档（BP/竞品报告/市场调研） | 方案生成函数 | ⬜ |
-| T10-4 生成30天冷启动执行计划（含时间节点和交付物） | 执行计划函数 | ⬜ |
-| T10-5 方案评分和风险提示 | 评分函数 | ⬜ |
+| T10-1 问卷式引导用户描述需求 | workflows/consultant_workflow.py → get_needs_questions() + parse_needs_input() | ✅ |
+| T10-2 自动匹配分析维度 | workflows/consultant_workflow.py → match_dimensions() | ✅ |
+| T10-3 生成结构化方案文档（BP/竞品报告/市场调研） | workflows/consultant_workflow.py → generate_solution() | ✅ |
+| T10-4 生成30天冷启动执行计划 | workflows/consultant_workflow.py → generate_launch_plan() | ✅ |
+| T10-5 方案评分和风险提示 | workflows/consultant_workflow.py → score_solution() + generate_risks() | ✅ |
 
 ---
 
@@ -309,7 +309,11 @@
 - ✅ **T04** 每个员工做明星工作流演示 — 10个子任务全部完成，commit f493976
 - ✅ **T05** SkillHub上架文案 — 5个子任务完成（宣传图待补），commit 3669e94
 - ✅ **T06** 新媒体运营工作流 — 7个子任务全部完成，commit c665068
-- ⬜ **T07** 文案助理工作流 — **下一步**
+- ✅ **T07** 文案助理工作流 — 5个子任务全部完成
+- ✅ **T08** 数据分析师工作流 — 5个子任务全部完成
+- ✅ **T09** 项目管家工作流 — 5个子任务全部完成
+- ✅ **T10** 商业顾问工作流 — 5个子任务全部完成，commit bb8bdfa
+- ⬜ **T11** 统一结果交付格式 — **下一步**
 
 ---
 

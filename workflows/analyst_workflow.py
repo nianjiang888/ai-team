@@ -587,63 +587,71 @@ def save_analysis_report(
 ) -> str:
     """
     保存分析报告到 outputs/content/。
-    
-    Returns:
-        str: 报告文件路径
+    使用 output_utils 统一格式。
     """
+    from workflows.output_utils import (
+        build_filename, build_markdown_doc,
+        create_review, save_review,
+    )
+
     os.makedirs(CONTENT_DIR, exist_ok=True)
     os.makedirs(REVIEWS_DIR, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_analysis_report.md"
+
+    analysis = report_result.get("analysis", {})
+
+    # 构建正文
+    body = ""
+    body += "## 数据概览\n\n"
+    body += f"- 格式: {analysis.get('format', '未知')}\n"
+    body += f"- 行数: {analysis.get('rows', 0)}\n"
+    body += f"- 列数: {analysis.get('cols', 0)}\n"
+    body += f"- 字段: {', '.join(analysis.get('columns', [])[:10])}\n"
+
+    issues = analysis.get("quality_issues", [])
+    if issues:
+        body += f"- 质量问题: {', '.join(issues)}\n"
+
+    body += "\n---\n\n"
+    body += report_result.get("report", "[未生成]")
+
+    if chart_recommendations:
+        body += "\n\n---\n\n## 推荐图表\n\n"
+        for rec in chart_recommendations:
+            body += f"- **{rec['name']}**: {rec['reason']}\n"
+            code_block = generate_chart_code(rec, filepath)
+            body += f"\n  ```python\n{code_block}\n  ```\n"
+
+    # 使用统一命名和结构
+    filename = build_filename("analyst", "analysis_report")
     report_path = os.path.join(CONTENT_DIR, filename)
-    
-    # 写报告
+
+    doc = build_markdown_doc(
+        employee="analyst",
+        task_type="analysis_report",
+        title=f"数据分析报告 - {os.path.basename(filepath)}",
+        body=body,
+        extra_meta={
+            "data_file": os.path.basename(filepath),
+            "requirement": report_result.get("requirement", "全面分析"),
+            "data_rows": analysis.get("rows", 0),
+            "data_cols": analysis.get("cols", 0),
+        },
+    )
+
     with open(report_path, "w", encoding="utf-8") as f:
-        f.write(f"# 数据分析报告\n\n")
-        f.write(f"> 数据文件: {os.path.basename(filepath)}\n")
-        f.write(f"> 分析时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-        f.write(f"> 需求: {report_result.get('requirement', '全面分析')}\n\n")
-        
-        analysis = report_result.get("analysis", {})
-        f.write(f"## 数据概览\n\n")
-        f.write(f"- 格式: {analysis.get('format', '未知')}\n")
-        f.write(f"- 行数: {analysis.get('rows', 0)}\n")
-        f.write(f"- 列数: {analysis.get('cols', 0)}\n")
-        f.write(f"- 字段: {', '.join(analysis.get('columns', [])[:10])}\n")
-        
-        issues = analysis.get("quality_issues", [])
-        if issues:
-            f.write(f"- 质量问题: {', '.join(issues)}\n")
-        
-        f.write("\n---\n\n")
-        f.write(report_result.get("report", "[未生成]"))
-        
-        if chart_recommendations:
-            f.write("\n\n---\n\n## 推荐图表\n\n")
-            for rec in chart_recommendations:
-                f.write(f"- **{rec['name']}**: {rec['reason']}\n")
-                code_block = generate_chart_code(rec, filepath)
-            f.write(f"  ```python\n{code_block}\n  ```\n")
-    
-    # 审批记录
-    review_id = f"review_{timestamp}"
-    review_data = {
-        "id": review_id,
-        "type": "content_review",
-        "agent": "analyst",
-        "doc_type": "analysis_report",
-        "content_file": filename,
-        "data_file": os.path.basename(filepath),
-        "status": "pending",
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "reviewed_at": None,
-        "review_note": "",
-    }
-    
-    with open(os.path.join(REVIEWS_DIR, f"{review_id}.json"), "w", encoding="utf-8") as f:
-        json.dump(review_data, f, ensure_ascii=False, indent=2)
-    
+        f.write(doc)
+
+    # 使用统一审批记录
+    review_data = create_review(
+        employee="analyst",
+        task_type="analysis_report",
+        title=f"分析报告 - {os.path.basename(filepath)}",
+        content=body,
+        filepath=filename,
+    )
+    review_data["data_file"] = os.path.basename(filepath)
+    save_review(review_data, REVIEWS_DIR)
+
     return report_path
 
 

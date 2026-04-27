@@ -506,46 +506,64 @@ def run_full_workflow(
         for r in risks:
             print(f"    [{r['level']}] {r['risk']}")
     
-    # 保存结果
+    # 保存结果（使用 output_utils 统一格式）
+    from workflows.output_utils import (
+        build_filename, build_markdown_doc,
+        create_review, save_review,
+    )
+
     os.makedirs(CONTENT_DIR, exist_ok=True)
     os.makedirs(REVIEWS_DIR, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = os.path.join(CONTENT_DIR, f"{timestamp}_{solution_type}.md")
-    
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(f"# 商业方案 | {solution_type.upper()}\n\n")
-        f.write(f"> 评分: {score['total']}/100 ({score['level']})\n")
-        f.write(f"> 分析维度: {', '.join(solution['dimensions'])}\n")
-        f.write(f"> 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
-        
-        if risks:
-            f.write("## ⚠️ 风险提示\n\n")
-            for r in risks:
-                icon = "🔴" if r["level"] == "high" else "🟡"
-                f.write(f"{icon} {r['risk']}: {r['suggestion']}\n")
-            f.write("\n---\n\n")
-        
-        f.write(solution["solution"])
-        f.write("\n\n---\n\n")
-        f.write("## 30天冷启动计划\n\n")
-        f.write(launch_plan)
-    
-    # 审批记录
-    review_data = {
-        "id": f"review_{timestamp}",
-        "type": "content_review",
-        "agent": "consultant",
-        "doc_type": solution_type,
-        "content_file": os.path.basename(output_file),
-        "quality_score": score["total"],
-        "risks": risks,
-        "status": "pending",
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+
+    # 构建正文
+    body = ""
+    if risks:
+        body += "## 风险提示\n\n"
+        for r in risks:
+            icon = "🔴" if r["level"] == "high" else "🟡"
+            body += f"{icon} {r['risk']}: {r['suggestion']}\n"
+        body += "\n---\n\n"
+
+    body += solution["solution"]
+    body += "\n\n---\n\n"
+    body += "## 30天冷启动计划\n\n"
+    body += launch_plan
+
+    quality_info = {
+        "score": score["total"],
+        "issues": [r["risk"] for r in risks if r["level"] == "high"],
+        "suggestions": [r["suggestion"] for r in risks],
     }
-    
-    with open(os.path.join(REVIEWS_DIR, f"review_{timestamp}.json"), "w", encoding="utf-8") as f:
-        json.dump(review_data, f, ensure_ascii=False, indent=2)
+
+    filename = build_filename("consultant", solution_type)
+    output_file = os.path.join(CONTENT_DIR, filename)
+
+    doc = build_markdown_doc(
+        employee="consultant",
+        task_type=solution_type,
+        title=f"商业方案 | {solution_type.upper()}",
+        body=body,
+        quality_info=quality_info,
+        extra_meta={
+            "score": score["total"],
+            "score_level": score["level"],
+            "dimensions": solution["dimensions"],
+        },
+    )
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(doc)
+
+    # 使用统一审批记录
+    review_data = create_review(
+        employee="consultant",
+        task_type=solution_type,
+        title=f"商业方案 - {solution_type}",
+        content=body,
+        filepath=filename,
+    )
+    review_data["risks"] = risks
+    save_review(review_data, REVIEWS_DIR)
     
     result["score"] = score
     result["risks"] = risks

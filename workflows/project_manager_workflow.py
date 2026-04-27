@@ -314,25 +314,63 @@ def generate_daily_report(project_name: str = "项目", tasks: list = None, llm_
 
 
 def save_daily_report(project_name: str, tasks: list = None, llm_client=None) -> str:
-    """保存日报到文件"""
+    """保存日报到文件，使用 output_utils 统一格式。"""
+    from workflows.output_utils import (
+        build_filename, build_markdown_doc,
+        create_review, save_review,
+    )
+
     os.makedirs(DAILY_REPORTS_DIR, exist_ok=True)
-    
+    os.makedirs(CONTENT_DIR, exist_ok=True)
+    os.makedirs(REVIEWS_DIR, exist_ok=True)
+
     report = generate_daily_report(project_name, tasks, llm_client)
+
+    # 日报同时保存为JSON（数据用）和Markdown（展示用）
     date_str = datetime.now().strftime("%Y-%m-%d")
-    filepath = os.path.join(DAILY_REPORTS_DIR, f"report_{date_str}.json")
-    
+    json_filepath = os.path.join(DAILY_REPORTS_DIR, f"report_{date_str}.json")
+
+    progress = summarize_progress(tasks).get("progress", 0)
     data = {
         "project": project_name,
         "date": date_str,
-        "progress": summarize_progress(tasks).get("progress", 0),
+        "progress": progress,
         "report": report,
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
-    
-    with open(filepath, "w", encoding="utf-8") as f:
+
+    with open(json_filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    
-    return filepath
+
+    # 生成Markdown版本
+    md_filename = build_filename("pm", "daily_report")
+    md_filepath = os.path.join(CONTENT_DIR, md_filename)
+
+    doc = build_markdown_doc(
+        employee="pm",
+        task_type="daily_report",
+        title=f"项目日报 - {project_name}",
+        body=report,
+        extra_meta={
+            "project": project_name,
+            "progress": progress,
+        },
+    )
+
+    with open(md_filepath, "w", encoding="utf-8") as f:
+        f.write(doc)
+
+    # 审批记录
+    review_data = create_review(
+        employee="pm",
+        task_type="daily_report",
+        title=f"日报 - {project_name}",
+        content=report,
+        filepath=md_filename,
+    )
+    save_review(review_data, REVIEWS_DIR)
+
+    return md_filepath
 
 
 # =============================================
@@ -429,9 +467,11 @@ def run_full_workflow(
     else:
         print("  未发现风险")
     
-    # 保存WBS到文件
+    # 保存WBS到文件（使用统一命名）
+    from workflows.output_utils import build_filename
     os.makedirs(CONTENT_DIR, exist_ok=True)
-    wbs_file = os.path.join(CONTENT_DIR, f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_wbs.json")
+    wbs_filename = build_filename("pm", "wbs", ext="json")
+    wbs_file = os.path.join(CONTENT_DIR, wbs_filename)
     with open(wbs_file, "w", encoding="utf-8") as f:
         json.dump(wbs, f, ensure_ascii=False, indent=2)
     

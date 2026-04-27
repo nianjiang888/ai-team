@@ -526,64 +526,59 @@ def quality_check(content: str) -> dict:
 def save_content(content_data: dict, auto_refine: bool = True, llm_client=None) -> str:
     """
     将内容保存到 outputs/content/ 并创建审批记录到 outputs/reviews/。
-    
-    Args:
-        content_data: generate_content() 的返回值
-        auto_refine: 是否自动润色
-        llm_client: LLM客户端
-        
-    Returns:
-        str: 保存的内容文件路径
+    使用 output_utils 统一格式。
     """
+    from workflows.output_utils import (
+        build_filename, build_markdown_doc,
+        create_review, save_review,
+    )
+
     os.makedirs(CONTENT_DIR, exist_ok=True)
     os.makedirs(REVIEWS_DIR, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
     platform = content_data.get("platform", "xiaohongshu")
-    
+    task_type = platform if platform in ["xiaohongshu", "douyin", "wechat", "weibo"] else "content"
+
     # 润色
     raw_content = content_data.get("content", "")
     if auto_refine:
         refined_content = refine_content(raw_content, llm_client=llm_client)
     else:
         refined_content = raw_content
-    
+
     # 质量检查
     qc = quality_check(refined_content)
-    
-    # 保存内容文件
-    filename = f"{timestamp}_{platform}_topic{content_data.get('topic_id', 0)}.md"
+
+    # 使用统一命名
+    filename = build_filename("social_media", task_type)
     filepath = os.path.join(CONTENT_DIR, filename)
-    
+
+    # 使用统一文件结构
+    doc = build_markdown_doc(
+        employee="social_media",
+        task_type=task_type,
+        title=content_data.get("topic_title", "未命名"),
+        body=refined_content,
+        quality_info=qc,
+        extra_meta={
+            "platform": content_data.get("platform_name", platform),
+            "topic_id": content_data.get("topic_id", 0),
+        },
+    )
+
     with open(filepath, "w", encoding="utf-8") as f:
-        f.write(f"# {content_data.get('topic_title', '未命名')}\n\n")
-        f.write(f"> 平台: {content_data.get('platform_name', platform)}\n")
-        f.write(f"> 生成时间: {content_data.get('generated_at', '')}\n")
-        f.write(f"> 质量评分: {qc['score']}/100\n\n")
-        f.write("---\n\n")
-        f.write(refined_content)
-    
-    # 创建审批记录
-    review_id = f"review_{timestamp}"
-    review_data = {
-        "id": review_id,
-        "type": "content_review",
-        "agent": "social_media",
-        "platform": platform,
-        "topic_title": content_data.get("topic_title", ""),
-        "content_file": filename,
-        "quality_score": qc["score"],
-        "quality_issues": qc["issues"],
-        "status": "pending",  # pending / approved / rejected
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "reviewed_at": None,
-        "review_note": "",
-    }
-    
-    review_filepath = os.path.join(REVIEWS_DIR, f"{review_id}.json")
-    with open(review_filepath, "w", encoding="utf-8") as f:
-        json.dump(review_data, f, ensure_ascii=False, indent=2)
-    
+        f.write(doc)
+
+    # 使用统一审批记录
+    review_data = create_review(
+        employee="social_media",
+        task_type=task_type,
+        title=content_data.get("topic_title", ""),
+        content=refined_content,
+        filepath=filename,
+    )
+    save_review(review_data, REVIEWS_DIR)
+
     return filepath
 
 
