@@ -385,7 +385,7 @@ def check_risks(tasks: list = None, wbs: dict = None) -> list:
     risks = []
     
     # 风险1: 关键路径任务被阻塞
-    critical_blocked = [t for t in tasks if t.get("critical") and t["status"] == "blocked"]
+    critical_blocked = [t for t in tasks if t.get("critical") and t.get("status") == "blocked"]
     if critical_blocked:
         risks.append({
             "level": "high",
@@ -405,12 +405,12 @@ def check_risks(tasks: list = None, wbs: dict = None) -> list:
         })
     
     # 风险3: 有阻塞任务
-    if progress["blocked"] > 0:
+    if progress.get("blocked", 0) > 0:
         risks.append({
             "level": "medium",
             "type": "任务阻塞",
-            "count": progress["blocked"],
-            "tasks": [t["name"] for t in tasks if t["status"] == "blocked"],
+            "count": progress.get("blocked", 0),
+            "tasks": [t["name"] for t in tasks if t.get("status") == "blocked"],
             "suggestion": "排查阻塞原因，必要时调整依赖关系",
         })
     

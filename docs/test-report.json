@@ -1,0 +1,158 @@
+{
+  "timestamp": "2026-04-27 08:31:50",
+  "total": 25,
+  "passed": 25,
+  "failed": 0,
+  "results": [
+    {
+      "name": "U01 状态流转",
+      "status": "PASS",
+      "time": "0.03s",
+      "detail": "状态流转: 正确"
+    },
+    {
+      "name": "U02 审批CRUD",
+      "status": "PASS",
+      "time": "0.11s",
+      "detail": "审批CRUD: 全部通过"
+    },
+    {
+      "name": "T06-1 热搜抓取",
+      "status": "PASS",
+      "time": "2.43s",
+      "detail": "抓取到 6 条热搜"
+    },
+    {
+      "name": "T06-2 选题生成",
+      "status": "PASS",
+      "time": "0.83s",
+      "detail": "生成 5 条选题"
+    },
+    {
+      "name": "T06-3 选题保存",
+      "status": "PASS",
+      "time": "0.77s",
+      "detail": "保存到 topics_2026-04-27.json"
+    },
+    {
+      "name": "T06-4 文案生成",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "生成 306 字文案"
+    },
+    {
+      "name": "T06-5 质量检查",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "评分 90/100, 问题数 1"
+    },
+    {
+      "name": "T06-6 内容保存(统一格式)",
+      "status": "PASS",
+      "time": "0.01s",
+      "detail": "保存 2026-04-27_083150_social_media_xiaohongshu.md, 含YAML头"
+    },
+    {
+      "name": "T07-1 类型识别",
+      "status": "PASS",
+      "time": "0.01s",
+      "detail": "识别: weekly_report, 置信度: 0.33"
+    },
+    {
+      "name": "T07-2 模板匹配",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "模板长度: 167 字符"
+    },
+    {
+      "name": "T07-3 专业度检查",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "评分: 85/100"
+    },
+    {
+      "name": "T07-4 端到端(邮件)",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "类型: business_email, 评分: 75"
+    },
+    {
+      "name": "T07-5 save_draft(统一格式)",
+      "status": "PASS",
+      "time": "0.01s",
+      "detail": "保存: 2026-04-27_083150_copywriter_weekly_report.md"
+    },
+    {
+      "name": "T08-1 文件检测",
+      "status": "PASS",
+      "time": "0.02s",
+      "detail": "格式: json"
+    },
+    {
+      "name": "T08-2 图表推荐",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "推荐 1 个图表: ['折线图']"
+    },
+    {
+      "name": "T08-3 报告生成",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "报告长度: 360 字符"
+    },
+    {
+      "name": "T08-4 save(统一格式)",
+      "status": "PASS",
+      "time": "0.03s",
+      "detail": "保存: 2026-04-27_083150_analyst_analysis_report.md, 含YAML头"
+    },
+    {
+      "name": "T09-1 WBS拆解",
+      "status": "PASS",
+      "time": "0.02s",
+      "detail": "拆解为 0 个任务"
+    },
+    {
+      "name": "T09-2 里程碑",
+      "status": "PASS",
+      "time": "0.01s",
+      "detail": "生成 3 个里程碑"
+    },
+    {
+      "name": "T09-3 日报保存(统一格式)",
+      "status": "PASS",
+      "time": "0.02s",
+      "detail": "日报保存: 2026-04-27_083150_pm_daily_report.md"
+    },
+    {
+      "name": "T09-4 风险检查",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "发现 0 个风险"
+    },
+    {
+      "name": "T10-1 需求收集",
+      "status": "PASS",
+      "time": "0.02s",
+      "detail": "6 个问题"
+    },
+    {
+      "name": "T10-2 需求解析+维度",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "识别维度: ['财务模型', '竞品分析', '市场调研', '品牌定位', '运营策略']"
+    },
+    {
+      "name": "T10-3 方案评分",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "评分: 55/100 (需要补充信息)"
+    },
+    {
+      "name": "T10-4 执行计划",
+      "status": "PASS",
+      "time": "0.00s",
+      "detail": "计划长度: 1234 字符"
+    }
+  ]
+}

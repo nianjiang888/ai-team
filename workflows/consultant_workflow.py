@@ -283,7 +283,7 @@ def generate_solution(
     
     # 追加分析维度
     dim_text = "\n【重点分析维度】\n" + "\n".join(
-        f"- {d['name']}: {d['description']}" for d in dimensions[:3]
+        f"- {d['name']}: {d.get('description', '')}" for d in dimensions[:3]
     )
     prompt = prompt.replace("【输出", dim_text + "\n\n【输出")
     
